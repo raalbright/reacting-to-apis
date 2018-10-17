@@ -2,28 +2,46 @@ import { polyfill } from "es6-promise";
 import "isomorphic-fetch";
 import React, { Component, Fragment } from "react";
 
-import MovieCard from "./components/MovieCard";
+import Card from "./components/Card";
 
 polyfill();
 
 class App extends Component {
 
   state = {
-    movies: [],
+    resources: [],
+    resourceType: '',
     isLoading: false,
     error: false
   };
 
 
-  handleClick = () => {
+  loadFilms = () => {
     this.setState( {
       isLoading: true
     } );
     fetch( 'https://ghibliapi.herokuapp.com/films' )
       .then( response => response.json() )
-      .then( movies => this.setState( ( state ) => ( {
-        movies,
-        isLoading: false
+      .then( resources => this.setState( ( state ) => ( {
+        resources,
+        isLoading: false,
+        resourceType: 'movie'
+      } ) ) )
+      .catch( () => this.setState( () => ( {
+        error: true
+      } ) ) );
+  }
+
+  loadPeople = () => {
+    this.setState( {
+      isLoading: true
+    } );
+    fetch( 'https://ghibliapi.herokuapp.com/people' )
+      .then( response => response.json() )
+      .then( resources => this.setState( ( state ) => ( {
+        resources,
+        isLoading: false,
+        resourceType: 'person'
       } ) ) )
       .catch( () => this.setState( () => ( {
         error: true
@@ -35,17 +53,26 @@ class App extends Component {
       <Fragment>
         <div className="container">
           <h1 className="text-center">Ghibli API</h1>
-          <input type="button" className="btn btn-primary mb-4" value="Load Films" onClick={ this.handleClick } />
+          <input type="button" className="btn btn-primary mb-4 mr-2" value="Load Films" onClick={ this.loadFilms } />
+          <input type="button" className="btn btn-primary mb-4" value="Load People" onClick={ this.loadPeople } />
           { ( this.state.error )
             ? <p>Error. Could not fetch movies.</p>
             : ( this.state.isLoading )
               ? <p>...Loading</p>
-              : this.state.movies.map( movie => (
-                <MovieCard key={ movie.id }
-                  title={ movie.title }
-                  description={ movie.description }
-                  producer={ movie.producer }
-                  director={ movie.director } />
+              : this.state.resources.map( resource => (
+                ( this.state.resourceType === 'movie' )
+                  ? <Card type={ this.state.resourceType }
+                    key={ resource.id }
+                    title={ this.state.title }
+                    description={ resource.description }
+                    producer={ resource.producer }
+                    director={ resource.director } />
+                  : <Card type={ this.state.resourceType }
+                    key={ resource.id }
+                    name={ resource.name }
+                    age={ resource.age }
+                    gender={ resource.gender }
+                    url={ resource.url } />
               ) )
           }
         </div>
