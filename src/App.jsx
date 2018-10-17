@@ -10,11 +10,15 @@ class App extends Component {
 
   state = {
     movies: [],
-    isLoading: true,
+    isLoading: false,
     error: false
   };
 
-  componentDidMount () {
+
+  handleClick = () => {
+    this.setState( {
+      isLoading: true
+    } );
     fetch( 'https://ghibliapi.herokuapp.com/films' )
       .then( response => response.json() )
       .then( movies => this.setState( ( state ) => ( {
@@ -26,16 +30,12 @@ class App extends Component {
       } ) ) );
   }
 
-  handleClick = event => {
-    event.preventDefault();
-    console.dir( event.target );
-  }
-
   render () {
     return (
       <Fragment>
         <div className="container">
           <h1 className="text-center">Ghibli API</h1>
+          <input type="button" className="btn btn-primary mb-4" value="Load Films" onClick={ this.handleClick } />
           { ( this.state.error )
             ? <p>Error. Could not fetch movies.</p>
             : ( this.state.isLoading )
